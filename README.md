@@ -2,19 +2,19 @@ growstuff-client
 ================
 
 
-#INSTALLATION :
+###INSTALLATION :
 
 VIRTUAL_ENV=$HOME/.virtualenv
 
-Prepare isolated environment
+####Prepare isolated environment
 virtualenv $VIRTUAL_ENV
 
-Activate isolated environment
+####Activate isolated environment
 source $VIRTUAL_ENV/bin/activate
 
-Install package
+####Install package
 pip install -U socketIO-client
 
 
-#More info : 
+####More info : 
 https://pypi.python.org/pypi/socketIO-client
