@@ -50,7 +50,7 @@ class Driver:
 		return self.queryData(self.WATER_INFO)
 
 	def readAllInfo(self):
-		self.ser.write(self.blueColor)
+		return {'tmp': self.readTemperature(), 'hum': self.readHumidity(), 'light': self.readLight(), 'ground_hum': self.readSolHumidity(), 'water_presence': self.readWaterLevel()}
 
 	def startWatering(self):
 		print "---> Start watering"
