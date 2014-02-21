@@ -1,10 +1,10 @@
 import serial
+from asyncSleep import AsyncSleep
 
 
 class Driver:
 	"""docstring for driver"""
 	def __init__(self):
-		self.ser = serial.Serial('/dev/tty.usbmodem1421', 9600)
 		self.greenColor = '\x00\xff\x00'
 		self.blueColor = '\x00\x00\xff'
 		self.redColor = '\xff\x00\x00'
@@ -17,7 +17,13 @@ class Driver:
 		self.SOIL_COMMAND = '\x05' 
 		self.WATER_INFO = '\x06'
 		self.ALL_INFO = '\x07'
-		print 'Serial connected'
+
+	def setSerial(self, url='/dev/tty.usbmodem1421', port=9600):
+		try:
+			self.ser = serial.Serial(url, port)
+			print 'Serial connected'
+		except OSError:
+			print('Can\'t connect to hardware')
 
 	def close(self):
 		self.ser.close()
@@ -45,18 +51,41 @@ class Driver:
 
 	def readAllInfo(self):
 		self.ser.write(self.blueColor)
-		# return self.queryData(self.ALL_INFO)
 
 	def startWatering(self):
-		self.ser.write(self.greenColor)
+		print "---> Start watering"
+		self.pushData(self.greenColor)
 
 	def stopWatering(self):
-		self.ser.write(self.redColor)
+		print "---> Stop watering"
+		self.pushData(self.redColor)
+
+	def waterWithDuration(self, waterTime):
+		self.startWatering()
+		sleep = AsyncSleep(waterTime, self.stopWatering)
+		sleep.start()
 
 	def queryData(self, arg):
-		self.ser.write(arg)
-		outPut = ""
-		while outPut == "":
-			outPut = self.ser.readline()
-		return outPut
+		if hasattr(self, 'ser'):
+			try:
+				self.ser.write(arg)
+				outPut = ""
+				while outPut == "":
+					outPut = self.ser.readline()
+				return outPut
+			except OSError:
+				print('Can\'t connect to hardware')
+		else:
+			print "Hardware not connected"
+
+	def pushData(self, arg):
+		if hasattr(self, 'ser'):
+			try:
+				self.ser.write(arg)
+			except OSError:
+				print('Can\'t connect to hardware')
+		else:
+			print "Hardware not connected"
+
+		
 
