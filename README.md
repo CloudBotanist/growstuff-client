@@ -24,9 +24,14 @@ Activating the environnement to install socketIO and pySerial
 
     source ~/.socketenv/bin/activate
     
-Then install,
+Then install the dependecies:
 
-    sudo easy_install-pypy -U pySerial socketIO-client
+    pip install -U pySerial socketIO-client
+    
+You may also have an issue with pip, then once again:
+
+    sudo ./sockentenv/bin/pip install -U pySerial socketIO-client
+
 
 and leave the environnement:
 
