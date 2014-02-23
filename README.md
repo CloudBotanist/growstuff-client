@@ -3,7 +3,8 @@ growstuff-client
 **The pi:** The following configuration has been done with raspbian Wheezy on the pi. 
 
 ###Dependances
-_ virtualenv
+
+- virtualenv
 - socketIO-client
 - pySerial
 
