@@ -12,8 +12,8 @@
 #define DHT_DI 2
 
 
-#define WATER_ON 97
-#define WATER_OFF 98
+#define WATER_ON 0
+#define WATER_OFF 1
 
 #define TEMPERARTURE_CMD 2
 #define HUMIDITY_CMD 3

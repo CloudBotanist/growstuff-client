@@ -6,14 +6,14 @@ from uuid import getnode as get_mac
 # logging.basicConfig(level=logging.DEBUG)
 
 def getID():
-	f = open('/home/plant.conf', 'r')
+	f = open('plant.conf', 'r')
         id = f.read().replace('\n', ' ').replace('\r', '').replace(' ', '')	
 	return '{"id": "' + id + '"}'
 
 def getStatus():
-	jsonInfos = arduino.readAll()
- 	print jsonInfos
- 	return jsonInfos
+	jsonInfo = arduino.readAllInfo()
+ 	print jsonInfo
+ 	return jsonInfo
 
 class Namespace(BaseNamespace):
 
