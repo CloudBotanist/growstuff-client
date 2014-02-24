@@ -15,6 +15,18 @@ def getStatus():
  	print jsonInfo
  	return jsonInfo
 
+def waitForConnection():
+	isConnected = False;
+	while not isConnected:
+		try:
+			socketIO = SocketIO('http://growstuff.herokuapp.com', 80, Namespace)
+			isConnected = True
+		except Exception, e:
+			isConnected = False
+	# When connected
+	socketIO.emit("identification", getID())
+	time.sleep(2)
+
 class Namespace(BaseNamespace):
 
 	def on_connection_succeed(self, *args):
@@ -28,14 +40,16 @@ class Namespace(BaseNamespace):
 	def on_picture(self, *args):
 		print "Take a picture !"
 
-socketIO = SocketIO('http://growstuff.herokuapp.com', 80, Namespace)
+socketIO = None
+waitForConnection()
 
 arduino = Driver();
 arduino.setSerial()
 
-socketIO.emit("identification", getID())
-time.sleep(2)
 
 while 1:
-	socketIO.emit('status', getStatus())
-	socketIO.wait(seconds=60)
+	try:
+		socketIO.emit('status', getStatus())
+		socketIO.wait(seconds=60)
+	except
+		waitForConnection()
