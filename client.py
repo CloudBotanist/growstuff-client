@@ -6,7 +6,7 @@ from uuid import getnode as get_mac
 # logging.basicConfig(level=logging.DEBUG)
 
 def getID():
-	f = open('/home/pi/pi.conf', 'r')
+	f = open('/home/plant.conf', 'r')
         id = f.read().replace('\n', ' ').replace('\r', '').replace(' ', '')	
 	return '{"id": "' + id + '"}'
 
