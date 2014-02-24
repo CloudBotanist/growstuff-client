@@ -54,3 +54,10 @@ pip install -U socketIO-client
 
 ####More info : 
 https://pypi.python.org/pypi/socketIO-client
+
+
+####ROADMAP : 
+
+- HAndle sockeIO excpetion
+- Reconnect loop after disconnection ?
+- Improve the integration (redirection to log, varialble path...)
