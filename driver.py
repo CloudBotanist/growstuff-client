@@ -1,14 +1,10 @@
-import serial
+import serial, json
 from asyncSleep import AsyncSleep
 
 
 class Driver:
 	"""docstring for driver"""
 	def __init__(self):
-		self.greenColor = '\x00\xff\x00'
-		self.blueColor = '\x00\x00\xff'
-		self.redColor = '\xff\x00\x00'
-		self.colors = [self.redColor, self.greenColor, self.blueColor]
 		self.WATER_ON = '\x00'
 		self.WATER_OFF = '\x01'
 		self.TEMPERARTURE_CMD = '\x02'
@@ -18,9 +14,9 @@ class Driver:
 		self.WATER_INFO = '\x06'
 		self.ALL_INFO = '\x07'
 
-	def setSerial(self, url='/dev/tty.usbmodem1421', port=9600):
+	def setSerial(self, url='/dev/ttyACM0', baudrate=9600):
 		try:
-			self.ser = serial.Serial(url, port)
+			self.ser = serial.Serial(url, baudrate, timeout=3)
 			print 'Serial connected'
 		except OSError:
 			print('Can\'t connect to hardware')
@@ -50,7 +46,15 @@ class Driver:
 		return self.queryData(self.WATER_INFO)
 
 	def readAllInfo(self):
-		return {'tmp': self.readTemperature(), 'hum': self.readHumidity(), 'light': self.readLight(), 'ground_hum': self.readSolHumidity(), 'water_presence': self.readWaterLevel()}
+		infos = self.queryData(self.ALL_INFO).split('|')
+                infoJson = json.dumps({
+                        "tmp": int(infos[0]),
+                        "hum": int(infos[1]),
+                        "light": int(infos[2]),
+                        "ground_hum": int(infos[3]),
+                        "water_presence": int(infos[4])
+                })
+                return infoJson
 
 	def startWatering(self):
 		print "---> Start watering"
@@ -69,9 +73,7 @@ class Driver:
 		if hasattr(self, 'ser'):
 			try:
 				self.ser.write(arg)
-				outPut = ""
-				while outPut == "":
-					outPut = self.ser.readline()
+				outPut = self.ser.readline()
 				return outPut
 			except OSError:
 				print('Can\'t connect to hardware')
