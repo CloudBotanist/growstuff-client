@@ -58,11 +58,11 @@ class Driver:
 
 	def startWatering(self):
 		print "---> Start watering"
-		self.pushData(self.greenColor)
+		self.pushData(self.WATER_ON)
 
 	def stopWatering(self):
 		print "---> Stop watering"
-		self.pushData(self.redColor)
+		self.pushData(self.WATER_OFF)
 
 	def waterWithDuration(self, waterTime):
 		self.startWatering()

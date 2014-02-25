@@ -2,7 +2,6 @@ from socketIO_client import SocketIO, BaseNamespace
 import logging, time
 
 from driver import Driver
-from uuid import getnode as get_mac
 # logging.basicConfig(level=logging.DEBUG)
 
 def getID():
@@ -22,6 +21,7 @@ def waitForConnection():
 			socketIO = SocketIO('http://growstuff.herokuapp.com', 80, Namespace)
 			isConnected = True
 		except Exception, e:
+			print 'Socket disconnected'
 			isConnected = False
 	# When connected
 	socketIO.emit("identification", getID())
@@ -51,5 +51,5 @@ while 1:
 	try:
 		socketIO.emit('status', getStatus())
 		socketIO.wait(seconds=60)
-	except
+	except:
 		waitForConnection()

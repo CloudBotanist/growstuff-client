@@ -52,12 +52,17 @@ source $VIRTUAL_ENV/bin/activate
 pip install -U socketIO-client
 
 
-####More info : 
-https://pypi.python.org/pypi/socketIO-client
+##### Running the script at startup :
+
+     sudo nano /etc/rc.local
+
+ Adding the following snippet juste before the **exit 0**
+
+     cd $HOME/socket
+     sudo ./socket.sh > socket.log 2>&1 &
 
 
 ####ROADMAP : 
 
-- HAndle sockeIO excpetion
-- Reconnect loop after disconnection ?
-- Improve the integration (redirection to log, varialble path...)
+- Serial communication through GPIO instead of usb
+= Webcam integration
