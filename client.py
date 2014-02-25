@@ -2,12 +2,14 @@ from socketIO_client import SocketIO, BaseNamespace
 import logging, time
 
 from driver import Driver
-# logging.basicConfig(level=logging.DEBUG)
+#logging.basicConfig(level=logging.DEBUG)
 
 def getID():
 	f = open('plant.conf', 'r')
         id = f.read().replace('\n', ' ').replace('\r', '').replace(' ', '')	
-	return '{"id": "' + id + '"}'
+	jsonID =  '{"id":"' + id + '"}'
+	print jsonID
+	return jsonID
 
 def getStatus():
 	jsonInfo = arduino.readAllInfo()
@@ -15,41 +17,48 @@ def getStatus():
  	return jsonInfo
 
 def waitForConnection():
-	isConnected = False;
-	while not isConnected:
+	while 1:
 		try:
-			socketIO = SocketIO('http://growstuff.herokuapp.com', 80, Namespace)
-			isConnected = True
-		except Exception, e:
-			print 'Socket disconnected'
-			isConnected = False
+			socket = SocketIO('http://growstuff.herokuapp.com', 80, Namespace)
+			return socket	
+		except:
+			#let's try again in a few
+			time.sleep(60)						
 	# When connected
 	socketIO.emit("identification", getID())
 	time.sleep(2)
+	#print 'Server connected!'
 
 class Namespace(BaseNamespace):
 
-	def on_connection_succeed(self, *args):
-		print 'Connection succeeded'
+	def on_connection (self, *args):
+		print 'Server connected!'
+	def on_disconnection(self, *args):
+		
+		print 'Server disconnected!'
 
 	def on_watering(self, *args):
-		print "---> Server asked for watering"
+		print '---> Server asked for watering'
 		wateringTime = int(args[0])
 		arduino.waterWithDuration(wateringTime)
 
 	def on_picture(self, *args):
-		print "Take a picture !"
+		print '---> Take a picture !'
 
-socketIO = None
-waitForConnection()
 
+print 'Connecting to the Server...'
+socketIO = waitForConnection()
+
+print 'Connecting to the Arduino...'
 arduino = Driver();
 arduino.setSerial()
+print 'Arduino connected!'
 
 
-while 1:
-	try:
-		socketIO.emit('status', getStatus())
-		socketIO.wait(seconds=60)
-	except:
-		waitForConnection()
+
+try:
+	socketIO.emit('status', getStatus())
+	socketIO.wait(seconds=60)
+except:
+	print "Lost connection: waiting for reconnection"
+	socketIO = waitForConnection()
