@@ -1,18 +1,17 @@
 from socketIO_client import SocketIO, BaseNamespace
 from driver import Driver
-import logging, time
+from webcam import Webcam
+import logging
 
 #logging.basicConfig(level=logging.DEBUG)
-
-firstConnection = False
 
 class Namespace(BaseNamespace):
 
 	def on_connect (self):
 		print '---> Server connected!'
-		global firstConnection
+		global firstConnection, jsonId
 		firstConnection = True
-		self.emit("identification", getID())
+		self.emit("identification", jsonId)
 		
 	def on_disconnect(self):
 		print '---> Server disconnected!'
@@ -24,18 +23,25 @@ class Namespace(BaseNamespace):
 		arduino.waterWithDuration(wateringTime)
 
 	def on_picture(self, *args):
-		print '---> Take a picture!'
+		print '---> Server asked for a picture!'
+		global plantId
+		Webcam(plantId).takePicture()
 
-def getID():
+def getId():
 	f = open('plant.conf', 'r')
-    	ID = f.read().replace('\n', ' ').replace('\r', '').replace(' ', '')	
-	print 'ID: ' + ID
-	return '{ "id": "' + ID + '" }'
+    	plantId = f.read().replace('\n', ' ').replace('\r', '').replace(' ', '')	
+	print 'Plant ID is: ' + plantId
+	return plantId	
 
 def getStatus():
 	jsonInfos = arduino.readAllInfos()
  	print 'Status: ' + jsonInfos
  	return jsonInfos
+
+firstConnection = False
+plantId = getId()
+jsonId = '{"id":"'+ plantId + '"}'
+
 
 print 'Connecting to the Arduino...'
 arduino = Driver();
@@ -44,6 +50,7 @@ print '---> Arduino connected!'
 	        
 print 'Connecting to the Server...'
 socketIO = SocketIO('growstuff.herokuapp.com', 80, Namespace)
+#socketIO = SocketIO('192.168.1.25', 8080, Namespace)
 
 while not firstConnection:
 	socketIO.wait(seconds=1)
