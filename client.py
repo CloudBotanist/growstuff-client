@@ -1,41 +1,22 @@
 from socketIO_client import SocketIO, BaseNamespace
+from driver import Driver
 import logging, time
 
-from driver import Driver
 #logging.basicConfig(level=logging.DEBUG)
 
-def getID():
-	f = open('plant.conf', 'r')
-        id = f.read().replace('\n', ' ').replace('\r', '').replace(' ', '')	
-	jsonID =  '{"id":"' + id + '"}'
-	print jsonID
-	return jsonID
-
-def getStatus():
-	jsonInfo = arduino.readAllInfo()
- 	print jsonInfo
- 	return jsonInfo
-
-def waitForConnection():
-	while 1:
-		try:
-			socket = SocketIO('http://growstuff.herokuapp.com', 80, Namespace)
-			return socket	
-		except:
-			#let's try again in a few
-			time.sleep(60)						
-	# When connected
-	socketIO.emit("identification", getID())
-	time.sleep(2)
-	#print 'Server connected!'
+firstConnection = False
 
 class Namespace(BaseNamespace):
 
-	def on_connection (self, *args):
-		print 'Server connected!'
-	def on_disconnection(self, *args):
+	def on_connect (self):
+		print '---> Server connected!'
+		global firstConnection
+		firstConnection = True
+		self.emit("identification", getID())
 		
-		print 'Server disconnected!'
+	def on_disconnect(self):
+		print '---> Server disconnected!'
+		connected = false
 
 	def on_watering(self, *args):
 		print '---> Server asked for watering'
@@ -43,22 +24,29 @@ class Namespace(BaseNamespace):
 		arduino.waterWithDuration(wateringTime)
 
 	def on_picture(self, *args):
-		print '---> Take a picture !'
+		print '---> Take a picture!'
 
+def getID():
+	f = open('plant.conf', 'r')
+    	ID = f.read().replace('\n', ' ').replace('\r', '').replace(' ', '')	
+	print 'ID: ' + ID
+	return '{ "id": "' + ID + '" }'
 
-print 'Connecting to the Server...'
-socketIO = waitForConnection()
+def getStatus():
+	jsonInfos = arduino.readAllInfos()
+ 	print 'Status: ' + jsonInfos
+ 	return jsonInfos
 
 print 'Connecting to the Arduino...'
 arduino = Driver();
-arduino.setSerial()
-print 'Arduino connected!'
+arduino.init()
+print '---> Arduino connected!'
+	        
+print 'Connecting to the Server...'
+socketIO = SocketIO('growstuff.herokuapp.com', 80, Namespace)
 
-
-
-try:
+while not firstConnection:
+	socketIO.wait(seconds=1)
+while 1: 
 	socketIO.emit('status', getStatus())
 	socketIO.wait(seconds=60)
-except:
-	print "Lost connection: waiting for reconnection"
-	socketIO = waitForConnection()

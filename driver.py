@@ -14,21 +14,15 @@ class Driver:
 		self.WATER_INFO = '\x06'
 		self.ALL_INFO = '\x07'
 
-	def setSerial(self, url='/dev/ttyACM0', baudrate=9600):
+	def init(self, url='/dev/ttyACM0', baudrate=9600):
 		try:
 			self.ser = serial.Serial(url, baudrate, timeout=3)
 			print 'Serial connected'
 		except OSError:
 			print('Can\'t connect to hardware')
 
-	def close(self):
+	def diconnect(self):
 		self.ser.close()
-
-	def push(self, data):
-		self.ser.write(data)
-
-	def pop(self, bufferSize):
-		return self.ser.readline()
 
 	def readHumidity(self):
 		return self.queryData(self.HUMIDITY_CMD)
@@ -39,13 +33,13 @@ class Driver:
 	def readLight(self):
 		return self.queryData(self.LIGHT_CMD)
 
-	def readSolHumidity(self):
+	def readSoilHumidity(self):
 		return self.queryData(self.SOIL_COMMAND)
 
 	def readWaterLevel(self):
 		return self.queryData(self.WATER_INFO)
 
-	def readAllInfo(self):
+	def readAllInfos(self):
 		infos = self.queryData(self.ALL_INFO).split('|')
                 infoJson = json.dumps({
                         "tmp": int(infos[0]),
@@ -88,6 +82,3 @@ class Driver:
 				print('Can\'t connect to hardware')
 		else:
 			print "Hardware not connected"
-
-		
-
