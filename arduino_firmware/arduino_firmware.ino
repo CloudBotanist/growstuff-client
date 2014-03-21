@@ -4,13 +4,14 @@
 
 #include <DHT.h>
 
-#define MOISTURE_AI A0
-#define PHOTOCELL_AI A1
-#define WATERL_AI A2
+#define PHOTOCELL_AI A0
+#define MOISTURE_AI A1
+#define WATER_EMPTY_AI A2
+#define WATER_FULL_AI A3
 
-#define RELAY_DO 3
 #define DHT_DI 2
-
+#define RELAY_DO 3
+#define WATER_LED_DO 4
 
 #define WATER_ON 0
 #define WATER_OFF 1
@@ -32,7 +33,8 @@ DHT dht(DHT_DI, DHT_TYPE);
 //              INPUTS
 //-------------------------------------
 int getHumidity() {
-  float humidity = dht.readHumidity();
+  //float humidity = dht.readHumidity();
+  int humidity = analogRead(DHT_DI);
   if(isnan(humidity)) {
     return -1;
   }  
@@ -43,7 +45,7 @@ int getHumidity() {
 }
 
 int getTemperature() {
-  float temperature = dht.readTemperature();
+  float temperature = dht.readTemperature(false);
   if(isnan(temperature)) {
     return -1;
   }
@@ -72,10 +74,18 @@ int getBrightness() {
 }
 
 int getWaterLevel() {
-   int reading = analogRead(PHOTOCELL_AI);
+   int reading = analogRead(WATER_EMPTY_AI);
    //Serial.print("Water level: ");
    //Serial.println(reading);
    return reading;
+}
+
+boolean isTankEmpty() {
+  if(analogRead(WATER_FULL_AI) == 0) {
+    return false;
+  } else {
+    return true;
+  }
 }
 
 
@@ -91,6 +101,14 @@ void setWatering(boolean state) {
   }
 }
 
+
+void setEmptyTank(boolean state) {
+  if(state) {
+    digitalWrite(WATER_LED_DO, HIGH);  
+  } else {
+    digitalWrite(WATER_LED_DO, LOW);  
+  }    
+}
 
 //-------------------------------------
 //          SETUP AND LOOP
@@ -118,33 +136,41 @@ void execCommand(int cmd, String &infos) {
       infos = String(getSoilMoisture());
   } else if (cmd == WATER_CMD) {
       infos = String(getWaterLevel());
-  } else if (cmd == INFO_CMD) {
-      infos = String(getTemperature()) + "|" + String(getHumidity()) + "|" + String(getBrightness()) + "|" + String(getSoilMoisture()) + "|" + String(getWaterLevel());
-  }  
+  } else {
+      //Waiting for the DHT11 to return :)
+      //infos = String(getTemperature()) + "|" + String(getHumidity()) + "|" + String(getBrightness()) + "|" + String(getSoilMoisture()) + "|" + String(getWaterLevel());
+      infos = String(20) + "|" + String(50) + "|" + String(getBrightness()) + "|" + String(getSoilMoisture()) + "|" + String(getWaterLevel());
+  } 
 }
 
+
 String infos;
-void loop ()
-{
+void loop () {
   int cmd = readCommand();
   if(cmd != -1) {
     execCommand(cmd,infos);
-    Serial.print(infos);
+    Serial.println(infos);
   }
+  //Checking that water tank is not full
+  setEmptyTank(isTankEmpty());
 }
 
 void setup (){
 
   digitalWrite(RELAY_DO, LOW);
   pinMode(RELAY_DO, OUTPUT);
+  pinMode(WATER_LED_DO, OUTPUT);
 
   pinMode(MOISTURE_AI, INPUT);
   pinMode(PHOTOCELL_AI, INPUT);
+  pinMode(WATER_EMPTY_AI, INPUT);
+  pinMode(WATER_FULL_AI, INPUT);
+  
   pinMode(DHT_DI, INPUT);
-  pinMode(WATERL_AI, INPUT);
     
   Serial.begin(9600);
-  dht.begin();
+  //dht.begin();
   
   infos.reserve(25);
+  infos = "";
 }
