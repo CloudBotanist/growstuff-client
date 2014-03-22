@@ -6,7 +6,7 @@
 
 #define MOISTURE_AI A0
 #define PHOTOCELL_AI A1
-#define WATERL_AI A2
+#define WATER_AI A2
 
 #define RELAY_DO 3
 #define DHT_DI 2
@@ -72,7 +72,7 @@ int getBrightness() {
 }
 
 int getWaterLevel() {
-   int reading = analogRead(PHOTOCELL_AI);
+   int reading = analogRead(WATER_AI);
    //Serial.print("Water level: ");
    //Serial.println(reading);
    return reading;
@@ -124,16 +124,15 @@ void execCommand(int cmd, String &infos) {
 }
 
 String infos;
-void loop ()
-{
+void loop () {
   int cmd = readCommand();
   if(cmd != -1) {
     execCommand(cmd,infos);
-    Serial.print(infos);
+    Serial.println(infos);
   }
 }
 
-void setup (){
+void setup () {
 
   digitalWrite(RELAY_DO, LOW);
   pinMode(RELAY_DO, OUTPUT);
@@ -141,7 +140,7 @@ void setup (){
   pinMode(MOISTURE_AI, INPUT);
   pinMode(PHOTOCELL_AI, INPUT);
   pinMode(DHT_DI, INPUT);
-  pinMode(WATERL_AI, INPUT);
+  pinMode(WATER_AI, INPUT);
     
   Serial.begin(9600);
   dht.begin();

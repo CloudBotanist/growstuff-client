@@ -25,7 +25,12 @@ class Namespace(BaseNamespace):
 	def on_picture(self, *args):
 		print '---> Server asked for a picture!'
 		global plantId
-		Webcam(plantId).takePicture()
+		try:
+			Webcam(plantId).takePicture()
+			return TRUE		
+		except ConnectTimeoutError:
+			print '---> Taking apicture has failed!'
+			return FALSE
 
 def getId():
 	f = open('plant.conf', 'r')
@@ -33,7 +38,7 @@ def getId():
 	print 'Plant ID is: ' + plantId
 	return plantId	
 
-def getStatus():
+def getStatus():	 
 	jsonInfos = arduino.readAllInfos()
  	print 'Status: ' + jsonInfos
  	return jsonInfos
@@ -55,5 +60,11 @@ socketIO = SocketIO('growstuff.herokuapp.com', 80, Namespace)
 while not firstConnection:
 	socketIO.wait(seconds=1)
 while 1: 
-	socketIO.emit('status', getStatus())
-	socketIO.wait(seconds=60)
+	try:
+		socketIO.emit('status', getStatus())
+		socketIO.wait(seconds=60)	
+	except ValueError as e: 
+		print '---> Read infos failed!'
+		print e.strerror
+		socketIO.wait(seconds=2)
+

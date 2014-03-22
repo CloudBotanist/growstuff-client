@@ -14,7 +14,7 @@ class Driver:
 		self.WATER_INFO = '\x06'
 		self.ALL_INFO = '\x07'
 
-	def init(self, url='/dev/ttyACM0', baudrate=9600):
+	def init(self, url='/dev/ttyAMA0', baudrate=9600):
 		try:
 			self.ser = serial.Serial(url, baudrate, timeout=3)
 			print 'Serial connected'
@@ -67,7 +67,9 @@ class Driver:
 		if hasattr(self, 'ser'):
 			try:
 				self.ser.write(arg)
-				outPut = self.ser.readline()
+				outPut = ''
+				while outPut == '':
+					outPut = self.ser.readline()
 				return outPut
 			except OSError:
 				print('Can\'t connect to hardware')

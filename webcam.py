@@ -9,11 +9,12 @@ class Webcam:
 	    
 	def __init__(self, plantId):
 		self.plantId = plantId
-        	self.client = DropboxClient(ACCES_TOKEN)
-		print self.client.account_info()
            
    	def takePicture(self):
-        	name = datetime.datetime.now().strftime("%y-%m-%d-%H-%M") + '.jpg'
+		self.client = DropboxClient(ACCES_TOKEN)
+		print self.client.account_info()
+
+       		name = datetime.datetime.now().strftime("%y-%m-%d-%H-%M") + '.jpg'
 		command = PICTURE_CMD + name
 		process = subprocess.Popen(command.split(), stdout=subprocess.PIPE)        	
 		process.wait()
