@@ -5,6 +5,7 @@ growstuff-client
 ##Using the deployement script 
 
 Just run the following command when your pi is connected on ethernet.
+    
     https://raw.githubusercontent.com/alexisfasquel/growstuff-client/master/init.sh -O - | sudo sh
 
 ###Dependances
