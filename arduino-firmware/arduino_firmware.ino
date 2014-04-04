@@ -33,8 +33,7 @@ DHT dht(DHT_DI, DHT_TYPE);
 //              INPUTS
 //-------------------------------------
 int getHumidity() {
-  //float humidity = dht.readHumidity();
-  int humidity = analogRead(DHT_DI);
+  float humidity = dht.readHumidity();
   if(isnan(humidity)) {
     return -1;
   }  
